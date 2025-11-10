@@ -28,7 +28,7 @@
 
 ### Microsservice architecture
 At least these 2 microsservices:
-- Stock service (manage products and stock levels)
+- Product service (manage products and stock levels)
 - Billing service (manage invoices)
 
 ### Failure handling
@@ -42,16 +42,15 @@ At least these 2 microsservices:
 - Use of AI
 - Idempotence
 
-
 ## Endpoints
 
-### Stock Service
-- /GET  products
-- /GET  products/{id}
-- /POST products
+### Product Service
+- GET  /products - // may contain one or more `id` query params
+- GET  /products/{id}
+- POST /products
 
 ### Invoicing Service
-- /GET  invoices
-- /GET  invoices/{id}
-- /POST invoices
-- /POST invoices/{id}/close
+- GET  /invoices
+- GET  /invoices/{id}
+- POST /invoices
+- PUT /invoices/{id}/close
