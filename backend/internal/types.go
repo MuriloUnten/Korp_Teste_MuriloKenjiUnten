@@ -1,5 +1,7 @@
 package internal
 
+import "time"
+
 type Product struct {
 	Id          int     `json:"id"`
 	Code        string  `json:"code"`
@@ -31,9 +33,11 @@ type ConsumeProductsRequest struct {
 }
 
 type Invoice struct {
-	Number int                 `json:"number"`
-	Status Status              `json:"status"`
-	Items  []InvoiceItemOutput `json:"items"`
+	Number    int                 `json:"number"`
+	Status    Status              `json:"status"`
+	Items     []InvoiceItemOutput `json:"items"`
+	CreatedAt time.Time           `json:"createdAt"`
+	ClosedAt  *time.Time          `json:"closedAt,omitempty"`
 }
 
 type InvoiceItemOutput struct {
@@ -43,8 +47,8 @@ type InvoiceItemOutput struct {
 }
 
 type CreateInvoiceRequest struct {
-	Number  int                 `json:"number"`
-	Status  Status              `json:"status"`
+	Number  int                `json:"number"`
+	Status  Status             `json:"status"`
 	Items   []InvoiceItemInput `json:"items"`
 }
 
