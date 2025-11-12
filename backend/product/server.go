@@ -41,7 +41,7 @@ func (s *APIServer) handleGetProducts(w http.ResponseWriter, r *http.Request) er
 	idsQueryParams := r.URL.Query()["id"]
 	var ids []int = nil
 	if len(idsQueryParams) != 0 {
-		ids = make([]int, len(idsQueryParams))
+		ids = make([]int, 0, len(idsQueryParams))
 		for i, idStr := range idsQueryParams {
 			var err error
 			ids[i], err = strconv.Atoi(idStr)
