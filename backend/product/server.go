@@ -25,6 +25,8 @@ func NewAPIServer(addr string) *APIServer {
 	http.HandleFunc("GET /products", internal.MakeHandler(s.handleGetProducts))
 	http.HandleFunc("GET /products/{id}", internal.MakeHandler(s.handleGetProductById))
 	http.HandleFunc("POST /products", internal.MakeHandler(s.handleCreateProduct))
+	http.HandleFunc("PUT /products/reserve", internal.MakeHandler(s.handleReserveProducts))
+	http.HandleFunc("PUT /products/consume", internal.MakeHandler(s.handleConsumeProducts))
 
 	return s
 }
@@ -86,3 +88,32 @@ func (s *APIServer) handleCreateProduct(w http.ResponseWriter, r *http.Request) 
 	return internal.WriteJSON(w, http.StatusCreated, resp)
 }
 
+func (s *APIServer) handleReserveProducts(w http.ResponseWriter, r *http.Request) error {
+	var req internal.ReserveProductsRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return internal.InvalidRequestBody()
+	}
+
+	resp, err := s.svc.ReserveProducts(context.TODO(), req)
+	if err != nil {
+
+	}
+
+	return internal.WriteJSON(w, http.StatusOK, resp)
+}
+
+func (s *APIServer) handleConsumeProducts(w http.ResponseWriter, r *http.Request) error {
+	var req internal.ConsumeProductsRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return internal.InvalidRequestBody()
+	}
+
+	resp, err := s.svc.ConsumeProducts(context.TODO(), req)
+	if err != nil {
+
+	}
+
+	return internal.WriteJSON(w, http.StatusOK, resp)
+}

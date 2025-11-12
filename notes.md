@@ -48,6 +48,8 @@ At least these 2 microsservices:
 - GET  /products - // may contain one or more `id` query params
 - GET  /products/{id}
 - POST /products
+- PUT /products/reserve - // reserve products in batches
+- PUT /products/consume - // consume products in batches
 
 ### Invoicing Service
 - GET  /invoices

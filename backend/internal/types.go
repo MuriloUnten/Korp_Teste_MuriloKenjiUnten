@@ -4,38 +4,53 @@ type Product struct {
 	Id          int     `json:"id"`
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
-	StockLevel  float32 `json:"stockLevel"`
-	Available   float32 `json:"available"`
+	UnitPrice   float32 `json:"unitPrice"`
+	StockLevel  int     `json:"stockLevel"`
+	Available   int     `json:"available"`
 }
 
 type CreateProductRequest struct {
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
-	StockLevel  float32 `json:"stockLevel"`
+	UnitPrice   float32 `json:"unitPrice"`
+	StockLevel  int     `json:"stockLevel"`
+}
+
+type ReserveProductsRequest struct {
+	Products []struct{
+		Id     int `json:"id"`
+		Amount int `json:"amount"`
+	} `json:"products"`
+}
+
+type ConsumeProductsRequest struct {
+	Products []struct{
+		Id     int `json:"id"`
+		Amount int `json:"amount"`
+	} `json:"products"`
 }
 
 type Invoice struct {
-	Number int           `json:"number"`
-	Status Status        `json:"status"`
-	Items  []InvoiceItem `json:"items"`
+	Number int                 `json:"number"`
+	Status Status              `json:"status"`
+	Items  []InvoiceItemOutput `json:"items"`
 }
 
-type InvoiceItem struct {
-	ProductId   int     `json:"id"`
-	Code        string  `json:"code"`
-	Description string  `json:"description"`
-	Quantity    float32 `json:"quantity"`
+type InvoiceItemOutput struct {
+	InvoiceItemInput
+	Code        string `json:"code"`
+	Description string `json:"description"`
 }
 
 type CreateInvoiceRequest struct {
 	Number  int                 `json:"number"`
 	Status  Status              `json:"status"`
-	Items   []CreateInvoiceItem `json:"items"`
+	Items   []InvoiceItemInput `json:"items"`
 }
 
-type CreateInvoiceItem  struct {
-	ProductId int     `json:"id"`
-	Quantity  float32 `json:"quantity"`
+type InvoiceItemInput struct {
+	ProductId int `json:"id"`
+	Quantity  int `json:"quantity"`
 }
 
 type Status string

@@ -62,3 +62,10 @@ func NotImplemented() APIError {
 		Msg: "Endpoint not implemented",
 	}
 }
+
+func NotFound() APIError {
+	return APIError{
+		StatusCode: http.StatusNotFound,
+		Msg: "resource not found",
+	}
+}
