@@ -18,7 +18,6 @@ type APIServer struct {
 	addr string
 	svc Service
 }
-
 func NewAPIServer(addr, productUrl string) *APIServer {
 	s := &APIServer{
 		addr: addr,
@@ -26,7 +25,7 @@ func NewAPIServer(addr, productUrl string) *APIServer {
 	}
 
 	http.HandleFunc("GET /invoices", internal.MakeHandler(s.handleGetInvoices))
-	http.HandleFunc("GET /invoices/{id}", internal.MakeHandler(s.handleGetInvoiceById))
+	http.HandleFunc("GET /invoices/{id}", internal.MakeHandler(s.handleGetInvoiceByNumber))
 	http.HandleFunc("POST /invoices", internal.MakeHandler(s.handleCreateInvoice))
 	http.HandleFunc("PUT /invoices/{id}/close", internal.MakeHandler(s.handleCloseInvoice))
 
@@ -47,13 +46,13 @@ func (s *APIServer) handleGetInvoices(w http.ResponseWriter, r *http.Request) er
 	return internal.WriteJSON(w, http.StatusOK, invoices)
 }
 
-func (s *APIServer) handleGetInvoiceById(w http.ResponseWriter, r *http.Request) error {
+func (s *APIServer) handleGetInvoiceByNumber(w http.ResponseWriter, r *http.Request) error {
 	id, err := internal.GetPathId("id", r)
 	if err != nil {
 		return internal.InvalidPathIdentifier()
 	}
 
-	resp, err := s.svc.GetInvoiceById(context.TODO(), id)
+	resp, err := s.svc.GetInvoiceByNumber(context.TODO(), id)
 	if err != nil {
 		
 	}

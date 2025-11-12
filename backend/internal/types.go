@@ -42,8 +42,9 @@ type Invoice struct {
 
 type InvoiceItemOutput struct {
 	InvoiceItemInput
-	Code        string `json:"code"`
-	Description string `json:"description"`
+	Code         string  `json:"code"`
+	Description  string  `json:"description"`
+	PricePerUnit float32 `json:"pricePerUnit"`
 }
 
 type CreateInvoiceRequest struct {

@@ -2,18 +2,20 @@ package invoicing
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/MuriloUnten/Korp_Teste_MuriloKenjiUnten/internal"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service interface {
 	GetInvoices(ctx context.Context) ([]internal.Invoice, error)
-	GetInvoiceById(ctx context.Context, id int) (internal.Invoice, error)
+	GetInvoiceByNumber(ctx context.Context, number int) (internal.Invoice, error)
 	CreateInvoice(ctx context.Context, invoice internal.CreateInvoiceRequest) (internal.Invoice, error)
 	CloseInvoice(ctx context.Context, id int) (internal.Invoice, error)
 }
@@ -51,18 +53,18 @@ func (s *InvoicingService) GetInvoices(ctx context.Context) ([]internal.Invoice,
 			number    int
 			status    internal.Status
 			createdAt time.Time
-			closedAt  time.Time
+			closedAt  *time.Time
 
 			productId   *int
 			code        *string
 			description *string
-			unit_price  *float32
+			unitPrice   *float32
 			quantity    *int
 		)
 
 		err := rows.Scan(
 			&number, &status, &createdAt, &closedAt,
-			&productId, &code, &description, &unit_price, &quantity,
+			&productId, &code, &description, &unitPrice, &quantity,
 		)
 		if err != nil {
 			return nil, err
@@ -75,7 +77,7 @@ func (s *InvoicingService) GetInvoices(ctx context.Context) ([]internal.Invoice,
 				Number: number,
 				Status: status,
 				CreatedAt: createdAt,
-				ClosedAt: &closedAt,
+				ClosedAt: closedAt,
 				Items: []internal.InvoiceItemOutput{},
 			}
 			invoices[number] = inv
@@ -107,9 +109,54 @@ func (s *InvoicingService) GetInvoices(ctx context.Context) ([]internal.Invoice,
 	return invoiceList, nil
 }
 
-func (s *InvoicingService) GetInvoiceById(ctx context.Context, id int) (internal.Invoice, error) {
-	// TODO Implement
-	return internal.Invoice{}, nil
+func (s *InvoicingService) GetInvoiceByNumber(ctx context.Context, number int) (internal.Invoice, error) {
+	q := `
+	SELECT i.number, i.status, i.created_at, i.closed_at,
+		item.product_id, item.code, item.description, item.unit_price, item.quantity
+	FROM invoice i LEFT JOIN invoice_item item ON i.number = item.invoice_number
+	WHERE i.number = $1
+	`
+
+	inv := internal.Invoice{
+		Number: 0,
+		Items: make([]internal.InvoiceItemOutput, 0),
+	}
+
+	rows, err := s.db.Query(ctx, q, number)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return inv, internal.NotFound()
+		}
+	}
+
+	for rows.Next() {
+		var (
+			number    int
+			status    internal.Status
+			createdAt time.Time
+			closedAt  *time.Time
+		)
+
+		var item internal.InvoiceItemOutput
+		err := rows.Scan(
+			&number, &status, &createdAt, &closedAt,
+			&item.ProductId, &item.Code, &item.Description, &item.PricePerUnit, &item.Quantity,
+		)
+		if err != nil {
+			return inv, err
+		}
+
+		if inv.Number == 0 {
+			inv.Number    = number
+			inv.Status    = status
+			inv.CreatedAt = createdAt
+			inv.ClosedAt  = closedAt
+		}
+
+		inv.Items = append(inv.Items, item)
+	}
+
+	return inv, nil
 }
 
 func (s *InvoicingService) CreateInvoice(ctx context.Context, invoice internal.CreateInvoiceRequest) (internal.Invoice, error) {
